@@ -1,0 +1,15 @@
+#Display Settings
+TileSize: 32
+Clamp: false
+ScreenWidth: 336
+ScreenHeight: 252
+ScreenScale: 2
+ShowCollisionMask: false
+
+#Player Settings
+PlayerMaxLife: 100
+PlayerArmor: 20
+PlayerMagicalResistance: 20
+
+InventorySizeX: 9
+InvenrotySizeY: 5
