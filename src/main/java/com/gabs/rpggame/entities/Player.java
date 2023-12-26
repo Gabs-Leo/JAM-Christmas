@@ -1,6 +1,7 @@
 package com.gabs.rpggame.entities;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +19,16 @@ public class Player extends AliveEntity {
 	private boolean moving;
 	private boolean attacking;
 	
-	private Direction direction;
+	private Direction direction = Direction.LEFT;
 	private int speed;
-	
+	private final BufferedImage leftSprite = Main.spritesheet.getSprite(150, 300);
+	private final BufferedImage rightSprite = Main.spritesheet.getSprite(300, 300);
+	/*
 	private Animation downAnimation;
 	private Animation leftAnimation;
 	private Animation rightAnimation;
 	private Animation upAnimation;
-	/*
+
 	private Animation damageDownAnimation = new Animation(1, 5, 
 			Main.spritesheet.getSprite(0+256, 0+256, this.getWidth(), this.getHeight()),
 			Main.spritesheet.getSprite(32+256, 0+256, 32, 32),
@@ -54,15 +57,14 @@ public class Player extends AliveEntity {
 		for(int i = 0; i < Main.GameProperties.InventorySizeX * Main.GameProperties.InventorySizeY; i++)
 			inventory.add(null);
 		
-		this.setWidth(32)
-			.setHeight(32);
-		
-		this.setDirection(Direction.DOWN);
+		this.setWidth( Main.GameProperties.TileSize )
+			.setHeight( Main.GameProperties.TileSize );
+		this.setSprite(Main.spritesheet.getSprite(150, 300));
 		this.setTargetable(true);
 		this.setMaxLife(Main.GameProperties.PlayerMaxLife);
 		this.setLife(this.getMaxLife());
 		this.setArmor(Main.GameProperties.PlayerArmor);
-		
+		/*
 		downAnimation = new Animation(1, 5, 
 				Main.spritesheet.getSprite(0, 0, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(32, 0, this.getWidth(), this.getHeight()*2),
@@ -82,48 +84,7 @@ public class Player extends AliveEntity {
 				Main.spritesheet.getSprite(0, 64*3, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(32, 64*3, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(64, 64*3, this.getWidth(), this.getHeight()*2));
-	}
-
-	public void collectItem(Collectable item) {
-		/*
-		for(int i = 0; i < inventory.size(); i++) {
-			for(int j = 0; j < inventory.get(i).size(); j++) {
-				if(inventory.get(i).get(j) == null) {
-					item.getPositions()[0] = i;
-					item.getPositions()[1] = j;
-					item.setPlaceholder(false);
-					inventory.get(i).set(j, item);
-					if(inventory.get(i).get(j).getSize() > 1) {
-						for(int k = 0; k < inventory.get(i).get(j).getSize()-1; k++) {
-							Collectable col = new Collectable();
-							col.setPlaceholder(true);
-							inventory.get(i).set(j+1+k, col);
-						}
-					}
-					return;
-				}
-			}
-		}
-		for(int i = 0; i < inventory.size(); i++) {
-			for(int j = 0; j s< inventory.get(i).size(); j++) {
-				
-			}
-		}*/
-	}
-	
-	public void consumeItem(int positionX, int positionY) {
-		/*inventory.get(positionX).set(positionY, null);
-		for(int i = positionX; i < inventory.size(); i++) {
-			for(int j = positionY; j < inventory.get(i).size(); j++) {
-				if(inventory.get(i).get(j) != null ) {
-					if(inventory.get(i).get(j).isPlaceholder()) {
-						inventory.get(i).set(j, null);
-					} else {
-						return;
-					}
-				}
-			}
-		}*/
+		 */
 	}
 
 	@Override
@@ -146,6 +107,7 @@ public class Player extends AliveEntity {
 					this.setX(this.getX() - this.getSpeed());
 				this.setDirection(Direction.LEFT);
 			}
+			/*
 			if(this.isUp() && World.placeFree(this.getX(), this.getY() - this.getSpeed()) && this.getY() >= 0) {
 				this.setMoving(true);
 				this.setY(this.getY() - this.getSpeed());
@@ -154,14 +116,15 @@ public class Player extends AliveEntity {
 				this.setMoving(true);
 				this.setY(this.getY() + this.getSpeed());
 				this.setDirection(Direction.DOWN);
-			}
+			}*/
 		}
 		if(this.isMoving()) {
+			/*
 			getDownAnimation().run();
 			getUpAnimation().run();
 			getLeftAnimation().run();
 			getRightAnimation().run();
-			/*
+
 			damageDownAnimation.run();
 			damageUpAnimation.run();
 			damageLeftAnimation.run();
@@ -216,19 +179,21 @@ public class Player extends AliveEntity {
 	
 	@Override
 	public void render(Graphics g) {
+
 		if(!this.isTakingDamage()) {
+			/*
 			if(this.getDirection() == Direction.DOWN) {
 				g.drawImage(getDownAnimation().getImages().get(getDownAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 				//if(this.getEquipments().get(4) != null)
 				//	g.drawImage(this.getEquipments().get(4).getAnimations().get(0).getImages().get(getDownAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 			}else if(this.getDirection() == Direction.UP) {
 				g.drawImage(getUpAnimation().getImages().get(getUpAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
-			}
+			}*/
 			
 			if (this.getDirection() == Direction.RIGHT) {
-				g.drawImage(getRightAnimation().getImages().get(getRightAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(rightSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 			}else if(this.getDirection() == Direction.LEFT) {
-				g.drawImage(getLeftAnimation().getImages().get(getLeftAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(leftSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 			}
 		} else {
 			/*
@@ -244,7 +209,8 @@ public class Player extends AliveEntity {
 				g.drawImage(damageLeftAnimation.getImages().get(damageLeftAnimation.getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY(), null);
 			}*/
 		}
-		super.render(g);
+		//g.drawImage(this.getSprite(), this.getX() - Camera.getX(), this.getY() - Camera.getY(), null);
+		//super.render(g);
 	}
 	
 	public boolean isRight() {
@@ -312,7 +278,7 @@ public class Player extends AliveEntity {
 		this.attacking = attacking;
 		return this;
 	}
-
+/*
 	public Animation getDownAnimation() {
 		return downAnimation;
 	}
@@ -327,5 +293,5 @@ public class Player extends AliveEntity {
 
 	public Animation getRightAnimation() {
 		return rightAnimation;
-	}
+	}*/
 }

@@ -45,9 +45,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	/*
 	 * Made with <3 By Gabs
 	 */
-	private static final long serialVersionUID = 5837494021292687605L;
 	public static JFrame frame;
-
 	public static GameProperties GameProperties;
 	public static Assets assets;
 	private Thread thread;
@@ -75,32 +73,15 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static GameState state;
 	
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		try {
-			//File file = new File("game-properties.yml");
 			File file = new File(Thread.currentThread().getContextClassLoader().getResource("game-properties.yml").getFile());
-			//File file2 = new File(Thread.currentThread().getContextClassLoader().getResource("game-assets.yml").getFile());
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
 			
-			spritesheet = new Spritesheet("/dark_spritesheet.png");
-			
+			spritesheet = new Spritesheet("/sprites/christmas_spritesheet.png");
 			GameProperties = mapper.readValue(file, GameProperties.class);
-			//assets = mapper.readValue(file2, Assets.class);
-			
-			FileInputStream fis = new FileInputStream(Thread.currentThread().getContextClassLoader().getResource("TestDialogue.xlsx").getFile());
-			XSSFWorkbook wb = new XSSFWorkbook(fis);
-			XSSFSheet sheet = wb.getSheetAt(0);
-			//FormulaEvaluator formulaEvaluator = wb.getCreationHelper().createFormulaEvaluator();  
-			for(Row row: sheet) {     //iteration over row using for each loop
-				List<String> data = new ArrayList<>();
-				for(Cell cell: row) {    //iteration over cell using for each loop  
-					data.add(cell.getStringCellValue());
-					System.out.println(cell.getStringCellValue());
-				}
-				//dialogs.add(new Dialog().setSpeaker(data.get(0)).setMessage(data.get(0)));
-			}
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, e);
 		}
@@ -115,25 +96,25 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		entities = new ArrayList<Entity>();
 		frontEntities = new ArrayList<Entity>();
 		enemies = new ArrayList<Enemy>();
-		spritesheet = new Spritesheet("/dark.png");
+		//spritesheet = new Spritesheet("/dark.png");
 		damageShots = new ArrayList<>();
 		
 		ui = new HUD();
 		player = new Player();
 		player
 			.setWidth(GameProperties.TileSize)
-			.setHeight(GameProperties.TileSize)
-			.setSprite(spritesheet.getSprite(0, 0, GameProperties.TileSize, GameProperties.TileSize));
+			.setHeight(GameProperties.TileSize);
+			//.setSprite(spritesheet.getSprite(0, 0, GameProperties.TileSize, GameProperties.TileSize));
 		player
 			.setSpeed(4);
 		addKeyListener(this);
 		
-		//world = new World("/bedroom.png");
+		//world = new World("maps/christmas_map.png");
 		entities.add(player);
 		
 		state = GameState.MAIN_MENU;
 		
-		Sound.bg.loop();
+		//Sound.bg.loop();
 	};
 	
 	public void eventTick() {
@@ -224,7 +205,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	@Override
 	public void run() {
 		long lastTime = System.nanoTime();
-		double amountOfTicks = 60.0;
+		double amountOfTicks = 144.0;
 		double nanoSeconds = 1000000000 / amountOfTicks;
 		double delta = 0;
 		
@@ -267,7 +248,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	 * */
 	public void startFrame() {		
 		this.setPreferredSize(new Dimension(GameProperties.ScreenWidth*GameProperties.ScreenScale, GameProperties.ScreenHeight*GameProperties.ScreenScale));
-		frame = new JFrame("Game #1");
+		frame = new JFrame("Christmas Platform");
 		frame.add(this);
 		frame.setResizable(false);
 		frame.pack();
@@ -278,7 +259,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -291,7 +272,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			else if(e.getKeyCode() == KeyEvent.VK_Z)
 				pauseScreen.trigger();
 		}
-		
+
 		//Main Menu
 		else if(state == GameState.MAIN_MENU) {
 			if(e.getKeyCode() == KeyEvent.VK_DOWN)
@@ -301,7 +282,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			if(e.getKeyCode() == KeyEvent.VK_Z)
 				mainMenu.trigger();
 		}
-		
+
 		//Player Movement
 		else if(state == GameState.RUNNING) {
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
@@ -309,25 +290,25 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				player.setLeft(true);
 			}
-			
+			/*
 			if(e.getKeyCode() == KeyEvent.VK_UP) {
 				player.setUp(true);
 			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				player.setDown(true);
 			}
-			
+			*/
 			if(e.getKeyCode() == KeyEvent.VK_Z) {
 				eventTriggers.forEach((i) -> { if(i.isTriggered()) i.action.execute();});
 			}
 		}
-		
+
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			if(state == GameState.PAUSED) {
 				transition.endTransition();
-				Sound.bg.play();
+				//Sound.bg.play();
 				state = GameState.RUNNING;
 			} else if (state == GameState.RUNNING){
-				Sound.bg.stop();
+				//Sound.bg.stop();
 				transition.startTransition();
 				state = GameState.PAUSED;
 			}
@@ -335,24 +316,25 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
+
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			player.setRight(false);
-			player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
+			//player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
 
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			player.setLeft(false);
-			player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
+			//player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
 		}
-		
+		/*
 		if(e.getKeyCode() == KeyEvent.VK_UP) {
 			player.setUp(false);
-			player.getUpAnimation().setIndex(player.getUpAnimation().getStartIndex());
+			//player.getUpAnimation().setIndex(player.getUpAnimation().getStartIndex());
 
 		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			player.setDown(false);
-			player.getDownAnimation().setIndex(player.getDownAnimation().getStartIndex());
-		}
-		
+			//player.getDownAnimation().setIndex(player.getDownAnimation().getStartIndex());
+		}*/
+
 	}
 	
 	public static void closeGame() {

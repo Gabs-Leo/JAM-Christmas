@@ -30,7 +30,7 @@ public class Collectable extends Entity {
 		if(Entity.isColliding(this, Main.player)) {
 			method.execute();
 			Main.entities.remove(this);
-			Main.player.collectItem(this);
+			//Main.player.collectItem(this);
 			//Main.player.printInventory();
 		}
 	}

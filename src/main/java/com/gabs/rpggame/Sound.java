@@ -12,7 +12,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class Sound {
 	
 	private Clip clip;
-	public static Sound bg = new Sound("Snowy.wav"); 
+	//public static Sound bg = new Sound("sounds/Snowy.wav");
 	
 	public Sound(String path) {
 		try {
