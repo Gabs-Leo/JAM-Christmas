@@ -17,38 +17,19 @@ public class Player extends AliveEntity {
 	
 	private boolean right, left, up, down;
 	private boolean moving;
+	private boolean jump = false;
+	private boolean jumping = false;
+	public int jumpHeight = Main.GameProperties.TileSize*2;
+	public int jumpFrames = 0;
+	public int jumpSpeed = 6;
+	private int speed = 8;
 	private boolean attacking;
 	
 	private Direction direction = Direction.LEFT;
-	private int speed;
+
 	private final BufferedImage leftSprite = Main.spritesheet.getSprite(150, 300);
 	private final BufferedImage rightSprite = Main.spritesheet.getSprite(300, 300);
-	/*
-	private Animation downAnimation;
-	private Animation leftAnimation;
-	private Animation rightAnimation;
-	private Animation upAnimation;
 
-	private Animation damageDownAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 0+256, this.getWidth(), this.getHeight()),
-			Main.spritesheet.getSprite(32+256, 0+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 0+256, 32, 32));
-	
-	private Animation damageLeftAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 32+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 32+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 32+256, 32, 32));
-	
-	private Animation damageRightAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 64+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 64+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 64+256, 32, 32));
-	
-	private Animation damageUpAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 96+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 96+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 96+256, 32, 32));
-	*/
 	private int ammo = 0;
 	private List<Collectable> inventory = new ArrayList<>();
 	
@@ -89,16 +70,24 @@ public class Player extends AliveEntity {
 
 	@Override
 	public void eventTick() {
+		//Movement
 		this.setMoving(false);
+
+		//Jumping
+		if(this.isJump())
+			updateJump();
+		if(this.isJumping())
+			jump();
+		this.fall();
+
 		if(!this.isAttacking()) {
-			if(this.isRight() && World.placeFree(this.getX() + this.getSpeed(), this.getY()) && this.getX() + this.getWidth() <= World.WIDTH*Main.GameProperties.TileSize) {
+			if(this.isRight() && World.placeFree(this.getX() + this.getSpeed(), this.getY()) && this.getX() + this.getWidth() <= World.WIDTH*Main.GameProperties.TileSize && isJumping()) {
 				this.setMoving(true);
-				if(this.isDown() ||this.isUp())
+				if(this.isDown() || this.isUp())
 					this.setX(this.getX() + this.getSpeed()/2);
 				else
 					this.setX(this.getX() + this.getSpeed());
 				this.setDirection(Direction.RIGHT);
-				
 			}else if (this.isLeft() && World.placeFree(this.getX() - this.getSpeed(), this.getY()) && this.getX() >= 0) {
 				this.setMoving(true);
 				if(this.isDown() || this.isUp())
@@ -107,16 +96,14 @@ public class Player extends AliveEntity {
 					this.setX(this.getX() - this.getSpeed());
 				this.setDirection(Direction.LEFT);
 			}
+
 			/*
 			if(this.isUp() && World.placeFree(this.getX(), this.getY() - this.getSpeed()) && this.getY() >= 0) {
 				this.setMoving(true);
 				this.setY(this.getY() - this.getSpeed());
 				this.setDirection(Direction.UP);
-			}else if (this.isDown() && World.placeFree(this.getX(), this.getY() + this.getSpeed())) {
-				this.setMoving(true);
-				this.setY(this.getY() + this.getSpeed());
-				this.setDirection(Direction.DOWN);
-			}*/
+			}else*/
+
 		}
 		if(this.isMoving()) {
 			/*
@@ -191,9 +178,9 @@ public class Player extends AliveEntity {
 			}*/
 			
 			if (this.getDirection() == Direction.RIGHT) {
-				g.drawImage(rightSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(rightSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 0, null);
 			}else if(this.getDirection() == Direction.LEFT) {
-				g.drawImage(leftSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(leftSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 0, null);
 			}
 		} else {
 			/*
@@ -212,7 +199,41 @@ public class Player extends AliveEntity {
 		//g.drawImage(this.getSprite(), this.getX() - Camera.getX(), this.getY() - Camera.getY(), null);
 		//super.render(g);
 	}
-	
+
+	public void jump(){
+		if(World.placeFree(this.getX(), this.getY()-jumpSpeed)){
+			this.setY(this.getY() - jumpSpeed);
+			this.setJumpFrames(this.getJumpFrames()+jumpSpeed);
+			if(this.getJumpFrames() >= this.getJumpHeight()){
+				this.setJumping(false);
+				this.setJump(false);
+				this.setJumpFrames(0);
+
+				this.setRight(false);
+				this.setLeft(false);
+			}
+		} else {
+			this.setJumping(false);
+			this.setJump(false);
+			this.setJumpFrames(0);
+		}
+	}
+
+	public void updateJump(){
+		if(!World.placeFree(this.getX(), this.getY()+1)){
+			this.setJumping(true);
+		}else {
+			setJump(false);
+		}
+	}
+
+	public void fall(){
+		if (World.placeFree(this.getX(), this.getY() + 1) && !this.isJumping()) {
+			this.setMoving(true);
+			this.setY(this.getY() + this.getSpeed());
+		}
+	}
+
 	public boolean isRight() {
 		return right;
 	}
@@ -278,7 +299,39 @@ public class Player extends AliveEntity {
 		this.attacking = attacking;
 		return this;
 	}
-/*
+
+	public boolean isJumping() {
+		return jumping;
+	}
+
+	public void setJumping(boolean jumping) {
+		this.jumping = jumping;
+	}
+
+	public int getJumpHeight() {
+		return jumpHeight;
+	}
+
+	public void setJumpHeight(int jumpHeight) {
+		this.jumpHeight = jumpHeight;
+	}
+
+	public int getJumpFrames() {
+		return jumpFrames;
+	}
+
+	public void setJumpFrames(int jumpFrames) {
+		this.jumpFrames = jumpFrames;
+	}
+
+	public boolean isJump() {
+		return jump;
+	}
+
+	public void setJump(boolean jump) {
+		this.jump = jump;
+	}
+	/*
 	public Animation getDownAnimation() {
 		return downAnimation;
 	}

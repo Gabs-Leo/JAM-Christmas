@@ -104,9 +104,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		player
 			.setWidth(GameProperties.TileSize)
 			.setHeight(GameProperties.TileSize);
-			//.setSprite(spritesheet.getSprite(0, 0, GameProperties.TileSize, GameProperties.TileSize));
-		player
-			.setSpeed(4);
 		addKeyListener(this);
 		
 		//world = new World("maps/christmas_map.png");
@@ -233,19 +230,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		}
 		stop();
 	};
-	
-	
-	/*
-	 * 				//System.out.println("FPS: " + frames);
-				if(Main.player.isTakingDamage()) {
-					targetableCounter += 1;
-					System.out.println(targetableCounter);
-					if(targetableCounter == 2) {
-						targetableCounter = 0;
-						Main.player.setTakingDamage(false);
-					}
-				}
-	 * */
+
 	public void startFrame() {		
 		this.setPreferredSize(new Dimension(GameProperties.ScreenWidth*GameProperties.ScreenScale, GameProperties.ScreenHeight*GameProperties.ScreenScale));
 		frame = new JFrame("Christmas Platform");
@@ -287,8 +272,10 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		else if(state == GameState.RUNNING) {
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 				player.setRight(true);
+				player.setJump(true);
 			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				player.setLeft(true);
+				player.setJump(true);
 			}
 			/*
 			if(e.getKeyCode() == KeyEvent.VK_UP) {
@@ -318,11 +305,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public void keyReleased(KeyEvent e) {
 
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			player.setRight(false);
+			//player.setRight(false);
 			//player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
 
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			player.setLeft(false);
+			//player.setLeft(false);
 			//player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
 		}
 		/*
