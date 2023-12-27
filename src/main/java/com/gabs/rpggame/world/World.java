@@ -3,6 +3,7 @@ package com.gabs.rpggame.world;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -20,7 +21,7 @@ public class World {
 	public World () {}
 	public World(String path) {
 		try {
-			BufferedImage mapSprite = ImageIO.read(getClass().getResource(path));
+			BufferedImage mapSprite = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
 			WIDTH = mapSprite.getWidth();
 			HEIGHT = mapSprite.getHeight();
 			int[] pixels = new int[WIDTH * HEIGHT];
@@ -41,29 +42,66 @@ public class World {
 					tile.setX(xx * Main.GameProperties.TileSize)
 						.setY(yy * Main.GameProperties.TileSize)
 						.setType(CollisionType.NO_COLLISION)
-						.setSprite(Main.spritesheet.getSprite(96, 64, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					if(currentTile == 0xFF303030) {
+						.setSprite(Main.spritesheet.getSprite(0, 300, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+					//Gift
+					/*if(currentTile == 0xFFFC0000) {
 						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(96, 32, Main.GameProperties.TileSize, Main.GameProperties.TileSize));	
-					} else if(currentTile == 0xFF000000) {
+							.setSprite(Main.spritesheet.getSprite(0, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+					} else if(currentTile == 0xFFFB0000) {
 						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(0, 0, 1, 1));
-					} else if(currentTile == 0xFF353535) {
+							.setSprite(Main.spritesheet.getSprite(150, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+					} else if(currentTile == 0xFFFF0000) {
 						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(96, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					} 
-					if (currentTile == 0xFFFF0000) {
-						tile.setX(xx * Main.GameProperties.TileSize)
-							.setY(yy * Main.GameProperties.TileSize)
-							.setType(CollisionType.NO_COLLISION)
-							.setSprite(Main.spritesheet.getSprite(0, 288, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					} else if(currentTile == 0xFFDD36E5) {
+							.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+					} else if(currentTile == 0xFFFE0000) {
+						tile.setType(CollisionType.BLOCK)
+								.setSprite(Main.spritesheet.getSprite(0, 300, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+					}*/
+					if (currentTile == 0xFFFC0000) {
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(0, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.BLOCK);
+						Main.entities.add(prop);
+					}else if (currentTile == 0xFFFB0000) {
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(150, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.BLOCK);
+						Main.entities.add(prop);
+					}else if (currentTile == 0xFFFF0000) {
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.BLOCK);
+						Main.entities.add(prop);
+					} else if (currentTile == 0xFFFE0000) {
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(150, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.BLOCK);
+						Main.entities.add(prop);
+					}
+
+					//Player Position
+					else if(currentTile == 0xFF0000FF) {
 						Main.player.setX(xx*Main.GameProperties.TileSize);
 						Main.player.setY(yy*Main.GameProperties.TileSize);
 						Main.eventTriggers.add(new EventTrigger().setAction(() -> System.out.println("xd")).setX(xx*Main.GameProperties.TileSize).setY(yy*Main.GameProperties.TileSize));
-						
 					}
-					else if (currentTile == 0xFFFF00FF) {
+					/*else if (currentTile == 0xFFFF00FF) {
 						Collectable prop = new Collectable();
 						prop
 							.setSprite(Main.spritesheet.getSprite(544, 64, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
@@ -111,9 +149,10 @@ public class World {
 						
 						tile.setType(CollisionType.BLOCK);
 						Main.entities.add(prop);
-						
+
 					//Enemy
-					} else if (currentTile == 0xFFFE0000) {
+					}
+					else if (currentTile == 0xFFFE0000) {
 						Enemy enemy = new Enemy();
 						enemy.getCollisionMask()
 							.setWidth(16).setHeight(16);
@@ -154,6 +193,7 @@ public class World {
 						sword.setMethod(() -> sword.equipTo(Main.player));
 						Main.entities.add(sword);
 					}
+					*/
 					tiles[xx + (yy * WIDTH)] = tile;
 				}
 			}

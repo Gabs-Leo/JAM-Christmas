@@ -1,6 +1,7 @@
 package com.gabs.rpggame.entities;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,36 +17,19 @@ public class Player extends AliveEntity {
 	
 	private boolean right, left, up, down;
 	private boolean moving;
+	private boolean jump = false;
+	private boolean jumping = false;
+	public int jumpHeight = Main.GameProperties.TileSize*2;
+	public int jumpFrames = 0;
+	public int jumpSpeed = 6;
+	private int speed = 8;
 	private boolean attacking;
 	
-	private Direction direction;
-	private int speed;
-	
-	private Animation downAnimation;
-	private Animation leftAnimation;
-	private Animation rightAnimation;
-	private Animation upAnimation;
-	/*
-	private Animation damageDownAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 0+256, this.getWidth(), this.getHeight()),
-			Main.spritesheet.getSprite(32+256, 0+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 0+256, 32, 32));
-	
-	private Animation damageLeftAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 32+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 32+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 32+256, 32, 32));
-	
-	private Animation damageRightAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 64+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 64+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 64+256, 32, 32));
-	
-	private Animation damageUpAnimation = new Animation(1, 5, 
-			Main.spritesheet.getSprite(0+256, 96+256, 32, 32),
-			Main.spritesheet.getSprite(32+256, 96+256, 32, 32),
-			Main.spritesheet.getSprite(64+256, 96+256, 32, 32));
-	*/
+	private Direction direction = Direction.LEFT;
+
+	private final BufferedImage leftSprite = Main.spritesheet.getSprite(150, 300);
+	private final BufferedImage rightSprite = Main.spritesheet.getSprite(300, 300);
+
 	private int ammo = 0;
 	private List<Collectable> inventory = new ArrayList<>();
 	
@@ -54,15 +38,14 @@ public class Player extends AliveEntity {
 		for(int i = 0; i < Main.GameProperties.InventorySizeX * Main.GameProperties.InventorySizeY; i++)
 			inventory.add(null);
 		
-		this.setWidth(32)
-			.setHeight(32);
-		
-		this.setDirection(Direction.DOWN);
+		this.setWidth( Main.GameProperties.TileSize )
+			.setHeight( Main.GameProperties.TileSize );
+		this.setSprite(Main.spritesheet.getSprite(150, 300));
 		this.setTargetable(true);
 		this.setMaxLife(Main.GameProperties.PlayerMaxLife);
 		this.setLife(this.getMaxLife());
 		this.setArmor(Main.GameProperties.PlayerArmor);
-		
+		/*
 		downAnimation = new Animation(1, 5, 
 				Main.spritesheet.getSprite(0, 0, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(32, 0, this.getWidth(), this.getHeight()*2),
@@ -82,62 +65,29 @@ public class Player extends AliveEntity {
 				Main.spritesheet.getSprite(0, 64*3, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(32, 64*3, this.getWidth(), this.getHeight()*2),
 				Main.spritesheet.getSprite(64, 64*3, this.getWidth(), this.getHeight()*2));
-	}
-
-	public void collectItem(Collectable item) {
-		/*
-		for(int i = 0; i < inventory.size(); i++) {
-			for(int j = 0; j < inventory.get(i).size(); j++) {
-				if(inventory.get(i).get(j) == null) {
-					item.getPositions()[0] = i;
-					item.getPositions()[1] = j;
-					item.setPlaceholder(false);
-					inventory.get(i).set(j, item);
-					if(inventory.get(i).get(j).getSize() > 1) {
-						for(int k = 0; k < inventory.get(i).get(j).getSize()-1; k++) {
-							Collectable col = new Collectable();
-							col.setPlaceholder(true);
-							inventory.get(i).set(j+1+k, col);
-						}
-					}
-					return;
-				}
-			}
-		}
-		for(int i = 0; i < inventory.size(); i++) {
-			for(int j = 0; j s< inventory.get(i).size(); j++) {
-				
-			}
-		}*/
-	}
-	
-	public void consumeItem(int positionX, int positionY) {
-		/*inventory.get(positionX).set(positionY, null);
-		for(int i = positionX; i < inventory.size(); i++) {
-			for(int j = positionY; j < inventory.get(i).size(); j++) {
-				if(inventory.get(i).get(j) != null ) {
-					if(inventory.get(i).get(j).isPlaceholder()) {
-						inventory.get(i).set(j, null);
-					} else {
-						return;
-					}
-				}
-			}
-		}*/
+		 */
 	}
 
 	@Override
 	public void eventTick() {
+		//Movement
 		this.setMoving(false);
+
+		//Jumping
+		if(this.isJump())
+			updateJump();
+		if(this.isJumping())
+			jump();
+		this.fall();
+
 		if(!this.isAttacking()) {
-			if(this.isRight() && World.placeFree(this.getX() + this.getSpeed(), this.getY()) && this.getX() + this.getWidth() <= World.WIDTH*Main.GameProperties.TileSize) {
+			if(this.isRight() && World.placeFree(this.getX() + this.getSpeed(), this.getY()) && this.getX() + this.getWidth() <= World.WIDTH*Main.GameProperties.TileSize && isJumping()) {
 				this.setMoving(true);
-				if(this.isDown() ||this.isUp())
+				if(this.isDown() || this.isUp())
 					this.setX(this.getX() + this.getSpeed()/2);
 				else
 					this.setX(this.getX() + this.getSpeed());
 				this.setDirection(Direction.RIGHT);
-				
 			}else if (this.isLeft() && World.placeFree(this.getX() - this.getSpeed(), this.getY()) && this.getX() >= 0) {
 				this.setMoving(true);
 				if(this.isDown() || this.isUp())
@@ -146,22 +96,22 @@ public class Player extends AliveEntity {
 					this.setX(this.getX() - this.getSpeed());
 				this.setDirection(Direction.LEFT);
 			}
+
+			/*
 			if(this.isUp() && World.placeFree(this.getX(), this.getY() - this.getSpeed()) && this.getY() >= 0) {
 				this.setMoving(true);
 				this.setY(this.getY() - this.getSpeed());
 				this.setDirection(Direction.UP);
-			}else if (this.isDown() && World.placeFree(this.getX(), this.getY() + this.getSpeed())) {
-				this.setMoving(true);
-				this.setY(this.getY() + this.getSpeed());
-				this.setDirection(Direction.DOWN);
-			}
+			}else*/
+
 		}
 		if(this.isMoving()) {
+			/*
 			getDownAnimation().run();
 			getUpAnimation().run();
 			getLeftAnimation().run();
 			getRightAnimation().run();
-			/*
+
 			damageDownAnimation.run();
 			damageUpAnimation.run();
 			damageLeftAnimation.run();
@@ -216,19 +166,21 @@ public class Player extends AliveEntity {
 	
 	@Override
 	public void render(Graphics g) {
+
 		if(!this.isTakingDamage()) {
+			/*
 			if(this.getDirection() == Direction.DOWN) {
 				g.drawImage(getDownAnimation().getImages().get(getDownAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 				//if(this.getEquipments().get(4) != null)
 				//	g.drawImage(this.getEquipments().get(4).getAnimations().get(0).getImages().get(getDownAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
 			}else if(this.getDirection() == Direction.UP) {
 				g.drawImage(getUpAnimation().getImages().get(getUpAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
-			}
+			}*/
 			
 			if (this.getDirection() == Direction.RIGHT) {
-				g.drawImage(getRightAnimation().getImages().get(getRightAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(rightSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 0, null);
 			}else if(this.getDirection() == Direction.LEFT) {
-				g.drawImage(getLeftAnimation().getImages().get(getLeftAnimation().getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY() - 32, null);
+				g.drawImage(leftSprite, this.getX() - Camera.getX(), this.getY() - Camera.getY() - 0, null);
 			}
 		} else {
 			/*
@@ -244,9 +196,44 @@ public class Player extends AliveEntity {
 				g.drawImage(damageLeftAnimation.getImages().get(damageLeftAnimation.getIndex()), this.getX() - Camera.getX(), this.getY() - Camera.getY(), null);
 			}*/
 		}
-		super.render(g);
+		//g.drawImage(this.getSprite(), this.getX() - Camera.getX(), this.getY() - Camera.getY(), null);
+		//super.render(g);
 	}
-	
+
+	public void jump(){
+		if(World.placeFree(this.getX(), this.getY()-jumpSpeed)){
+			this.setY(this.getY() - jumpSpeed);
+			this.setJumpFrames(this.getJumpFrames()+jumpSpeed);
+			if(this.getJumpFrames() >= this.getJumpHeight()){
+				this.setJumping(false);
+				this.setJump(false);
+				this.setJumpFrames(0);
+
+				this.setRight(false);
+				this.setLeft(false);
+			}
+		} else {
+			this.setJumping(false);
+			this.setJump(false);
+			this.setJumpFrames(0);
+		}
+	}
+
+	public void updateJump(){
+		if(!World.placeFree(this.getX(), this.getY()+1)){
+			this.setJumping(true);
+		}else {
+			setJump(false);
+		}
+	}
+
+	public void fall(){
+		if (World.placeFree(this.getX(), this.getY() + 1) && !this.isJumping()) {
+			this.setMoving(true);
+			this.setY(this.getY() + this.getSpeed());
+		}
+	}
+
 	public boolean isRight() {
 		return right;
 	}
@@ -313,6 +300,38 @@ public class Player extends AliveEntity {
 		return this;
 	}
 
+	public boolean isJumping() {
+		return jumping;
+	}
+
+	public void setJumping(boolean jumping) {
+		this.jumping = jumping;
+	}
+
+	public int getJumpHeight() {
+		return jumpHeight;
+	}
+
+	public void setJumpHeight(int jumpHeight) {
+		this.jumpHeight = jumpHeight;
+	}
+
+	public int getJumpFrames() {
+		return jumpFrames;
+	}
+
+	public void setJumpFrames(int jumpFrames) {
+		this.jumpFrames = jumpFrames;
+	}
+
+	public boolean isJump() {
+		return jump;
+	}
+
+	public void setJump(boolean jump) {
+		this.jump = jump;
+	}
+	/*
 	public Animation getDownAnimation() {
 		return downAnimation;
 	}
@@ -327,5 +346,5 @@ public class Player extends AliveEntity {
 
 	public Animation getRightAnimation() {
 		return rightAnimation;
-	}
+	}*/
 }

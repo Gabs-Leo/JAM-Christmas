@@ -1,9 +1,9 @@
 #Display Settings
-TileSize: 32
-Clamp: false
-ScreenWidth: 336
-ScreenHeight: 252
-ScreenScale: 2
+TileSize: 150
+Clamp: true
+ScreenWidth: 600
+ScreenHeight: 900
+ScreenScale: 1
 ShowCollisionMask: false
 
 #Player Settings

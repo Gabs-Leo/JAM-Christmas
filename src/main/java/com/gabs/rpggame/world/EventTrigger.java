@@ -14,7 +14,7 @@ public class EventTrigger {
 		Rectangle trigger = new Rectangle(this.x, this.y, this.size, this.size);
 		Rectangle player = new Rectangle(Main.player.getX(), Main.player.getY(), size, size);
 		System.out.println(this.x + "x"+this.y);
-		System.out.println(Main.player.getX() + "x" + Main.player.getY());
+		System.out.println("Player At:"+Main.player.getX() + "x" + Main.player.getY());
 		return trigger.intersects(player);
 	}
 
