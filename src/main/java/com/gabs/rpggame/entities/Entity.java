@@ -46,7 +46,6 @@ public abstract class Entity {
 	public void eventTick() {
 		this.collisionMask.setX(this.getX() + this.getWidth() / 2 - this.collisionMask.getWidth() / 2);
 		this.collisionMask.setY(this.getY() + this.getHeight() / 2 - this.collisionMask.getHeight() / 2);
-
 	}
 	
 	public void heal(int value) {

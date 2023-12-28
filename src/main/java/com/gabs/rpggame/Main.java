@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.swing.JFrame;
@@ -75,7 +76,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static void main(String[] args) {
 		try {
-			File file = new File(Thread.currentThread().getContextClassLoader().getResource("game-properties.yml").getFile());
+			File file = new File(
+					Objects.requireNonNull(
+							Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
+					).getFile()
+			);
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
@@ -132,7 +137,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		case GAME_OVER:
 			break;
 		case MAIN_MENU:
-			
 			break;
 		default:
 			break;
@@ -272,9 +276,12 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		else if(state == GameState.RUNNING) {
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 				player.setRight(true);
-				player.setJump(true);
+				//player.setJump(true);
 			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				player.setLeft(true);
+				//player.setJump(true);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_UP){
 				player.setJump(true);
 			}
 			/*
@@ -305,11 +312,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public void keyReleased(KeyEvent e) {
 
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			//player.setRight(false);
+			player.setRight(false);
 			//player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
 
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			//player.setLeft(false);
+			player.setLeft(false);
 			//player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
 		}
 		/*
