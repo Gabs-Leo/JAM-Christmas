@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.swing.JFrame;
@@ -75,7 +76,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static void main(String[] args) {
 		try {
-			File file = new File(Thread.currentThread().getContextClassLoader().getResource("game-properties.yml").getFile());
+			File file = new File(
+					Objects.requireNonNull(
+							Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
+					).getFile()
+			);
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
@@ -132,7 +137,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		case GAME_OVER:
 			break;
 		case MAIN_MENU:
-			
 			break;
 		default:
 			break;
@@ -198,35 +202,41 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void run() {
 		long lastTime = System.nanoTime();
-		double amountOfTicks = 144.0;
-		double nanoSeconds = 1000000000 / amountOfTicks;
-		double delta = 0;
-		
+		double amountOfTicks = 144;
+		double interval = 1000000000 / amountOfTicks;
+		//double nanoSeconds = 1000000000 / amountOfTicks;
+		//double delta = 0;
+		double lag = 0;
+
 		@SuppressWarnings("unused")
 		int frames = 0;
-		
+
 		double timer = System.currentTimeMillis();
 		requestFocus();
 
 		while(running) {
-			long now = System.nanoTime();
-			delta += (now - lastTime) / nanoSeconds;
-			
-			lastTime = now;
-			if(delta >= 1) {
+			Long currentTime = System.nanoTime();
+			double delta = currentTime - lastTime;
+			lag += delta;
+
+			while (lag >= interval) {
 				eventTick();
-				render();
+				lag -= interval;
 				frames++;
-				delta--;
 			}
+
 			if(System.currentTimeMillis() - timer >= 1000) {
+				System.out.println(frames);
 				frames = 0;
 				timer += 1000;
 			}
+
+			render();
+			lastTime = currentTime;
 		}
 		stop();
 	};
@@ -272,9 +282,12 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		else if(state == GameState.RUNNING) {
 			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 				player.setRight(true);
-				player.setJump(true);
+				//player.setJump(true);
 			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				player.setLeft(true);
+				//player.setJump(true);
+			}
+			if(e.getKeyCode() == KeyEvent.VK_UP){
 				player.setJump(true);
 			}
 			/*
@@ -305,11 +318,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public void keyReleased(KeyEvent e) {
 
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			//player.setRight(false);
+			player.setRight(false);
 			//player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
 
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			//player.setLeft(false);
+			player.setLeft(false);
 			//player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
 		}
 		/*
@@ -323,7 +336,9 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		}*/
 
 	}
-	
+	public static int generateRandomInt(int min, int max){
+		return (int) ((Math.random() * (max+1 - min)) + min);
+	}
 	public static void closeGame() {
 		Main.frame.dispatchEvent(new WindowEvent(Main.frame, WindowEvent.WINDOW_CLOSING));
 	}

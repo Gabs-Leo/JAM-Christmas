@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import com.gabs.rpggame.Main;
+import com.gabs.rpggame.entities.BallPlatform;
 import com.gabs.rpggame.entities.Enemy;
 import com.gabs.rpggame.entities.Prop;
 import com.gabs.rpggame.entities.collectables.Collectable;
@@ -15,7 +16,7 @@ import com.gabs.rpggame.entities.collectables.Equipment;
 
 public class World {
 	
-	private static Tile[] tiles;
+	public static Tile[] tiles;
 	public static int WIDTH, HEIGHT;
 	
 	public World () {}
@@ -42,21 +43,9 @@ public class World {
 					tile.setX(xx * Main.GameProperties.TileSize)
 						.setY(yy * Main.GameProperties.TileSize)
 						.setType(CollisionType.NO_COLLISION)
-						.setSprite(Main.spritesheet.getSprite(0, 300, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+						.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
+
 					//Gift
-					/*if(currentTile == 0xFFFC0000) {
-						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(0, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					} else if(currentTile == 0xFFFB0000) {
-						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(150, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					} else if(currentTile == 0xFFFF0000) {
-						tile.setType(CollisionType.BLOCK)
-							.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					} else if(currentTile == 0xFFFE0000) {
-						tile.setType(CollisionType.BLOCK)
-								.setSprite(Main.spritesheet.getSprite(0, 300, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
-					}*/
 					if (currentTile == 0xFFFC0000) {
 						Prop prop = new Prop();
 						prop
@@ -69,7 +58,7 @@ public class World {
 					}else if (currentTile == 0xFFFB0000) {
 						Prop prop = new Prop();
 						prop
-								.setSprite(Main.spritesheet.getSprite(150, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setSprite(Main.spritesheet.getSprite(75, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
 								.setX(xx * Main.GameProperties.TileSize)
 								.setY(yy * Main.GameProperties.TileSize);
 
@@ -78,7 +67,7 @@ public class World {
 					}else if (currentTile == 0xFFFF0000) {
 						Prop prop = new Prop();
 						prop
-								.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setSprite(Main.spritesheet.getSprite(0, 75, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
 								.setX(xx * Main.GameProperties.TileSize)
 								.setY(yy * Main.GameProperties.TileSize);
 
@@ -88,10 +77,42 @@ public class World {
 						Prop prop = new Prop();
 						prop
 								.setSprite(Main.spritesheet.getSprite(150, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setSprite(Main.spritesheet.getSprite(75, 75, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
 								.setX(xx * Main.GameProperties.TileSize)
 								.setY(yy * Main.GameProperties.TileSize);
 
 						tile.setType(CollisionType.BLOCK);
+						Main.entities.add(prop);
+					}
+					//Ball String
+
+					else if(currentTile == 0xFF00FE00){
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(150, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.NO_COLLISION);
+						Main.entities.add(prop);
+					}
+
+					//Balls
+					else if(currentTile == 0xFF00FF00){
+						//Prop prop = new Prop();
+						int random = Main.generateRandomInt(1,3);
+						System.out.println(random);
+						BallPlatform prop = new BallPlatform(
+							random == 1 ? "RED":
+							random == 2 ? "BLUE":
+							random == 3 ? "YELLOW": "RED"
+						);
+						prop
+								//.setSprite(Main.spritesheet.getSprite(150, 75, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+						tile.setType(CollisionType.BLOCK);
+						prop.setTile(xx + (yy * WIDTH));
 						Main.entities.add(prop);
 					}
 
@@ -228,7 +249,6 @@ public class World {
 		}
 		*/
 	}
-	
 	public static boolean placeFree(int nextX, int nextY) {
 		int x = Main.player.getWidth();
 		int y = Main.player.getHeight();
@@ -250,11 +270,11 @@ public class World {
 					tiles[x2 + y2*World.WIDTH].getType() == CollisionType.NO_COLLISION &&
 					tiles[x3 + y3*World.WIDTH].getType() == CollisionType.NO_COLLISION &&
 					tiles[x4 + y4*World.WIDTH].getType() == CollisionType.NO_COLLISION;
-		}catch(Exception e) {
+		} catch(Exception e) {
 			return false;
 		}
 	}
-	
+
 	public static int calculatePostMitigationDamage(int damage, int resistance) {
 		return damage / (1 + resistance / 100);
 	};
@@ -265,12 +285,5 @@ public class World {
 	public World setTiles(Tile[] tiles) {
 		World.tiles = tiles;
 		return this;
-	}
-	
-	public static int getWIDTH() {
-		return WIDTH;
-	}
-	public static int getHEIGHT() {
-		return HEIGHT;
 	}
 }
