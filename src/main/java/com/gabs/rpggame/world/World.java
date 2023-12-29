@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.imageio.ImageIO;
 
 import com.gabs.rpggame.Main;
+import com.gabs.rpggame.entities.BallPlatform;
 import com.gabs.rpggame.entities.Enemy;
 import com.gabs.rpggame.entities.Prop;
 import com.gabs.rpggame.entities.collectables.Collectable;
@@ -15,7 +16,7 @@ import com.gabs.rpggame.entities.collectables.Equipment;
 
 public class World {
 	
-	private static Tile[] tiles;
+	public static Tile[] tiles;
 	public static int WIDTH, HEIGHT;
 	
 	public World () {}
@@ -84,7 +85,7 @@ public class World {
 						Main.entities.add(prop);
 					}
 					//Ball String
-					/*
+
 					else if(currentTile == 0xFF00FE00){
 						Prop prop = new Prop();
 						prop
@@ -95,16 +96,23 @@ public class World {
 						tile.setType(CollisionType.NO_COLLISION);
 						Main.entities.add(prop);
 					}
-					*/
+
 					//Balls
 					else if(currentTile == 0xFF00FF00){
-						Prop prop = new Prop();
+						//Prop prop = new Prop();
+						int random = Main.generateRandomInt(1,3);
+						System.out.println(random);
+						BallPlatform prop = new BallPlatform(
+							random == 1 ? "RED":
+							random == 2 ? "BLUE":
+							random == 3 ? "YELLOW": "RED"
+						);
 						prop
-								.setSprite(Main.spritesheet.getSprite(150, 75, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
+								//.setSprite(Main.spritesheet.getSprite(150, 75, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
 								.setX(xx * Main.GameProperties.TileSize)
 								.setY(yy * Main.GameProperties.TileSize);
-
 						tile.setType(CollisionType.BLOCK);
+						prop.setTile(xx + (yy * WIDTH));
 						Main.entities.add(prop);
 					}
 
