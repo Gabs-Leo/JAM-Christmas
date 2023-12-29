@@ -61,8 +61,7 @@ public class MainMenu implements UI {
 	public void trigger() {
 		switch(option) {
 			case 0:
-				Main.world = new World("/maps/christmas_map.png");
-				Main.state = GameState.RUNNING;
+				Main.startGame();
 				break;
 			case 1:
 				Main.closeGame();

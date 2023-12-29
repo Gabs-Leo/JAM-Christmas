@@ -115,18 +115,11 @@ public class Player extends AliveEntity {
 			damageRightAnimation.run();
 			*/
 		}
+
+		focusCameraOnPlayer();
 		
-		if(Main.GameProperties.Clamp) {
-			Camera.setX(Camera.clamp(this.getX() - Main.GameProperties.ScreenWidth/2, 0, World.WIDTH*Main.GameProperties.TileSize - Main.GameProperties.ScreenWidth));
-			Camera.setY(Camera.clamp(this.getY() - Main.GameProperties.ScreenHeight/2, 0, World.HEIGHT*Main.GameProperties.TileSize - Main.GameProperties.ScreenHeight));
-		} else {
-			Camera.setX(this.getX() - Main.GameProperties.ScreenWidth/2);
-			Camera.setY(this.getY() - Main.GameProperties.ScreenHeight/2);
-		}
-		
-		if(this.getLife() <= 0) {
+		if(this.getY() >= Camera.getY()+Main.GameProperties.ScreenHeight)
 			Main.state = GameState.GAME_OVER;
-		}
 		
 		super.eventTick();
 	}
@@ -200,6 +193,22 @@ public class Player extends AliveEntity {
 			else
 				this.setY(Math.min(this.getY() + 1, (World.HEIGHT - 1) * Main.GameProperties.TileSize));
 			//this.setY(this.getY() + this.getGravity());
+		}
+	}
+
+	public void focusCameraOnPlayer(){
+		if(Camera.getY() == 0){
+			Camera.setY(Camera.clamp(this.getY() - Main.GameProperties.ScreenHeight/2, 0, World.HEIGHT*Main.GameProperties.TileSize - Main.GameProperties.ScreenHeight));
+		}
+		if(Main.GameProperties.Clamp) {
+			Camera.setX(Camera.clamp(this.getX() - Main.GameProperties.ScreenWidth/2, 0, World.WIDTH*Main.GameProperties.TileSize - Main.GameProperties.ScreenWidth));
+			Camera.setY(Math.min(
+					Camera.clamp(this.getY() - Main.GameProperties.ScreenHeight/2, 0, World.HEIGHT*Main.GameProperties.TileSize - Main.GameProperties.ScreenHeight),
+					Camera.getY()
+			));
+		} else {
+			Camera.setX(this.getX() - Main.GameProperties.ScreenWidth/2);
+			Camera.setY(this.getY() - Main.GameProperties.ScreenHeight/2);
 		}
 	}
 

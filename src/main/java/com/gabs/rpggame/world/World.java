@@ -46,7 +46,17 @@ public class World {
 						.setSprite(Main.spritesheet.getSprite(0, 150, Main.GameProperties.TileSize, Main.GameProperties.TileSize));
 
 					//Gift
-					if (currentTile == 0xFFFC0000) {
+					if(currentTile == 0xFF000300){
+						Prop prop = new Prop();
+						prop
+								.setSprite(Main.spritesheet.getSprite(0, 225, 2500, 3600))
+								.setX(xx * Main.GameProperties.TileSize)
+								.setY(yy * Main.GameProperties.TileSize);
+
+						tile.setType(CollisionType.NO_COLLISION);
+						Main.entities.add(prop);
+					}
+					else if (currentTile == 0xFFFC0000) {
 						Prop prop = new Prop();
 						prop
 								.setSprite(Main.spritesheet.getSprite(0, 0, Main.GameProperties.TileSize, Main.GameProperties.TileSize))
@@ -120,7 +130,6 @@ public class World {
 					else if(currentTile == 0xFF0000FF) {
 						Main.player.setX(xx*Main.GameProperties.TileSize);
 						Main.player.setY(yy*Main.GameProperties.TileSize);
-						Main.eventTriggers.add(new EventTrigger().setAction(() -> System.out.println("xd")).setX(xx*Main.GameProperties.TileSize).setY(yy*Main.GameProperties.TileSize));
 					}
 					/*else if (currentTile == 0xFFFF00FF) {
 						Collectable prop = new Collectable();

@@ -19,6 +19,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import com.gabs.rpggame.world.Camera;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -54,24 +55,17 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static Player player;
 	public static List<Entity> entities;
-	public static List<Entity> frontEntities;
 	public static List<DamageShot> damageShots;
-	public static List<EventTrigger> eventTriggers = new ArrayList<>();
-	public static List<Dialog> dialogs = new ArrayList<Dialog>();
-	
 	public static List<Enemy> enemies;
 	public static Spritesheet spritesheet;
 	public static World world;
-	
 	public static Random random;
 	public HUD ui;
 	public GameOverScreen gameOver = new GameOverScreen();
 	public PauseScreen pauseScreen = new PauseScreen();
 	public Transition transition = new Transition();
 	public MainMenu mainMenu = new MainMenu();
-	
 	private BufferedImage image;
-	
 	public static GameState state;
 	
 	public static void main(String[] args) {
@@ -99,16 +93,11 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		startFrame();
 		image = new BufferedImage(GameProperties.ScreenWidth, GameProperties.ScreenHeight, BufferedImage.TYPE_INT_RGB);
 		entities = new ArrayList<Entity>();
-		frontEntities = new ArrayList<Entity>();
 		enemies = new ArrayList<Enemy>();
-		//spritesheet = new Spritesheet("/dark.png");
 		damageShots = new ArrayList<>();
 		
 		ui = new HUD();
 		player = new Player();
-		player
-			.setWidth(GameProperties.TileSize)
-			.setHeight(GameProperties.TileSize);
 		addKeyListener(this);
 		
 		//world = new World("maps/christmas_map.png");
@@ -122,12 +111,10 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public void eventTick() {
 		switch(state) {
 		case RUNNING:{
-				for(int i = 0; i < entities.size(); i++) {
+				for(int i = 0; i < entities.size(); i++)
 					entities.get(i).eventTick();
-				}
 				for(int i = 0; i < enemies.size(); i++)
 					enemies.get(i).eventTick();
-				frontEntities.forEach(i -> i.eventTick());
 				for(int i = 0; i < damageShots.size(); i++)
 					damageShots.get(i).eventTick();
 			}
@@ -154,14 +141,19 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		g.setColor(new Color(0, 0, 0));
 		g.fillRect(0, 0, GameProperties.ScreenWidth, GameProperties.ScreenHeight);
 		
-		if(world != null)
-			world.render(g);
+		if(world != null){
+			try{
+				world.render(g);
+			} catch (Exception e){
+				System.out.println("err");
+			}
+
+		}
+
 		for(int i = 0; i < entities.size(); i++) 
 			entities.get(i).render(g);
 		for(int i = 0; i < enemies.size(); i++) 
 			enemies.get(i).render(g);
-		for(int i = 0; i < frontEntities.size(); i++) 
-			frontEntities.get(i).render(g);
 		for(int i = 0; i < damageShots.size(); i++) 
 			damageShots.get(i).render(g);
 		//ui.render(g);
@@ -297,9 +289,15 @@ public class Main extends Canvas implements Runnable, KeyListener {
 				player.setDown(true);
 			}
 			*/
-			if(e.getKeyCode() == KeyEvent.VK_Z) {
-				eventTriggers.forEach((i) -> { if(i.isTriggered()) i.action.execute();});
+
+		}
+
+		else if(state == GameState.GAME_OVER){
+			if(e.getKeyCode() == KeyEvent.VK_Z){
+				Main.state = GameState.RUNNING;
+				startGame();
 			}
+
 		}
 
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -334,6 +332,20 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			player.setDown(false);
 			//player.getDownAnimation().setIndex(player.getDownAnimation().getStartIndex());
 		}*/
+
+	}
+	public static void startGame(){
+		Camera.setY(0);
+		entities = new ArrayList<Entity>();
+		enemies = new ArrayList<Enemy>();
+		damageShots = new ArrayList<>();
+
+
+		Main.world = new World("/maps/christmas_map.png");
+		entities.add(player);
+		Main.player.focusCameraOnPlayer();
+
+		Main.state = GameState.RUNNING;
 
 	}
 	public static int generateRandomInt(int min, int max){
