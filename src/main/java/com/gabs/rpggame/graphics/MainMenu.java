@@ -17,20 +17,20 @@ public class MainMenu implements UI {
 	public void render(Graphics g) {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, Main.GameProperties.ScreenWidth, Main.GameProperties.ScreenHeight);
-		
+		g.drawImage(Main.spritesheet.getSprite(2500, 225, Main.GameProperties.ScreenWidth, Main.GameProperties.ScreenHeight), 0,0, null);
 		g.setColor(new Color(100, 100, 100));
-		g.setFont(new Font("arial", Font.PLAIN, 30));
-		g.drawString("Start", 10, 120);
-		g.drawString("Exit", 10, 150);
+		g.setFont(new Font("arial", Font.PLAIN, 40));
+		g.drawString("Start", Main.GameProperties.ScreenWidth-100, 120);
+		g.drawString("Exit", Main.GameProperties.ScreenWidth-90, 160);
 		
 		switch(option) {
 			case 0:
 				g.setColor(Color.WHITE);
-				g.drawString("Start", 10, 120);
+				g.drawString("Start", Main.GameProperties.ScreenWidth-100, 120);
 				break;
 			case 1:
 				g.setColor(Color.WHITE);
-				g.drawString("Exit", 10, 150);
+				g.drawString("Exit", Main.GameProperties.ScreenWidth-90, 160);
 				break;
 		}
 	}
