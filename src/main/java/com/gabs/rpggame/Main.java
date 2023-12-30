@@ -60,8 +60,8 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public static Spritesheet spritesheet;
 	public static World world;
 	public static Random random;
-	public HUD ui;
-	public GameOverScreen gameOver = new GameOverScreen();
+	public static HUD ui;
+	public static GameOverScreen gameOver = new GameOverScreen();
 	public PauseScreen pauseScreen = new PauseScreen();
 	public Transition transition = new Transition();
 	public MainMenu mainMenu = new MainMenu();
@@ -70,18 +70,21 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static void main(String[] args) {
 		try {
+			/*
 			File file = new File(
-					Objects.requireNonNull(
-							Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
-					).getFile()
+					"game-properties.yml"
+					//Objects.requireNonNull(
+					//		Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
+					//).getFile()
 			);
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);*/
 			
 			spritesheet = new Spritesheet("/sprites/christmas_spritesheet.png");
-			GameProperties = mapper.readValue(file, GameProperties.class);
-		} catch (IOException e) {
+			//GameProperties = mapper.readValue(file, GameProperties.class);
+			GameProperties = new GameProperties();
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
 		}
 		Main main = new Main();
@@ -105,7 +108,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		
 		state = GameState.MAIN_MENU;
 		
-		//Sound.bg.loop();
+		Sound.bg.loop();
 	};
 	
 	public void eventTick() {
@@ -117,6 +120,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 					enemies.get(i).eventTick();
 				for(int i = 0; i < damageShots.size(); i++)
 					damageShots.get(i).eventTick();
+				ui.eventTick();
 			}
 			break;
 		case PAUSED:
@@ -147,7 +151,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			} catch (Exception e){
 				System.out.println("err");
 			}
-
 		}
 
 		for(int i = 0; i < entities.size(); i++) 
@@ -161,11 +164,13 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		//dialogs.get(0).render(g);
 		switch(state) {
 			case RUNNING:
+				ui.render(g);
 				break;
 			case PAUSED:
 				pauseScreen.render(g);
 				break;
 			case GAME_OVER:
+				gameOver.setTimePlayed(ui.getTimePlayed());
 				gameOver.render(g);
 				break;
 			case MAIN_MENU:
@@ -282,14 +287,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			if(e.getKeyCode() == KeyEvent.VK_UP){
 				player.setJump(true);
 			}
-			/*
-			if(e.getKeyCode() == KeyEvent.VK_UP) {
-				player.setUp(true);
-			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-				player.setDown(true);
-			}
-			*/
-
 		}
 
 		else if(state == GameState.GAME_OVER){
@@ -297,7 +294,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 				Main.state = GameState.RUNNING;
 				startGame();
 			}
-
 		}
 
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -336,8 +332,9 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	}
 	public static void startGame(){
 		Camera.setY(0);
-		entities = new ArrayList<Entity>();
-		enemies = new ArrayList<Enemy>();
+		ui.setTimePlayed(0);
+		entities = new ArrayList<>();
+		enemies = new ArrayList<>();
 		damageShots = new ArrayList<>();
 
 
@@ -346,7 +343,19 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		Main.player.focusCameraOnPlayer();
 
 		Main.state = GameState.RUNNING;
-
+		Sound.bg.loop();
+	}
+	public static void gameOver(){
+		gameOver.setGameWon(false);
+		Main.state = GameState.GAME_OVER;
+		Sound.bg.stop();
+		Sound.playSound("fail");
+	}
+	public static void win(){
+		gameOver.setGameWon(true);
+		Main.state = GameState.GAME_OVER;
+		Sound.bg.stop();
+		Sound.playSound("success");
 	}
 	public static int generateRandomInt(int min, int max){
 		return (int) ((Math.random() * (max+1 - min)) + min);

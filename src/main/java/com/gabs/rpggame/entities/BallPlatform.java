@@ -1,6 +1,7 @@
 package com.gabs.rpggame.entities;
 
 import com.gabs.rpggame.Main;
+import com.gabs.rpggame.Sound;
 import com.gabs.rpggame.world.CollisionType;
 import com.gabs.rpggame.world.Tile;
 import com.gabs.rpggame.world.World;
@@ -26,6 +27,7 @@ public class BallPlatform extends Prop{
     //Yellow Ball
     private int switchTime = 2;
     private boolean hasCollision = true;
+    private Sound sound = new Sound("sounds/fall.wav");
 
     public BallPlatform(String type){
         this.type = type;
@@ -49,6 +51,7 @@ public class BallPlatform extends Prop{
                 if(isFalling && frames >= fallTime*60){
                     World.tiles[this.getTile()].setType(CollisionType.NO_COLLISION);
                     this.setY(this.getY() + fallSpeed);
+                    sound.play();
                 }
                 if(playerStep)
                     frames++;
