@@ -28,7 +28,6 @@ public class Player extends AliveEntity {
 	private boolean attacking;
 	
 	private Direction direction = Direction.LEFT;
-
 	private final BufferedImage leftSprite = Main.spritesheet.getSprite(75, 150);
 	private final BufferedImage rightSprite = Main.spritesheet.getSprite(150, 150);
 
@@ -119,9 +118,10 @@ public class Player extends AliveEntity {
 
 		focusCameraOnPlayer();
 		
-		if(this.getY() >= Camera.getY()+Main.GameProperties.ScreenHeight)
+		if(this.getY() >= Camera.getY()+Main.GameProperties.ScreenHeight || this.getY() > 3375)
 			Main.gameOver();
-		
+		if(this.getY()<= 200)
+			Main.win();
 		super.eventTick();
 	}
 	

@@ -61,7 +61,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public static World world;
 	public static Random random;
 	public static HUD ui;
-	public GameOverScreen gameOver = new GameOverScreen();
+	public static GameOverScreen gameOver = new GameOverScreen();
 	public PauseScreen pauseScreen = new PauseScreen();
 	public Transition transition = new Transition();
 	public MainMenu mainMenu = new MainMenu();
@@ -70,18 +70,21 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	
 	public static void main(String[] args) {
 		try {
+			/*
 			File file = new File(
-					Objects.requireNonNull(
-							Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
-					).getFile()
+					"game-properties.yml"
+					//Objects.requireNonNull(
+					//		Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
+					//).getFile()
 			);
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);*/
 			
 			spritesheet = new Spritesheet("/sprites/christmas_spritesheet.png");
-			GameProperties = mapper.readValue(file, GameProperties.class);
-		} catch (IOException e) {
+			//GameProperties = mapper.readValue(file, GameProperties.class);
+			GameProperties = new GameProperties();
+		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
 		}
 		Main main = new Main();
@@ -105,7 +108,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		
 		state = GameState.MAIN_MENU;
 		
-		//Sound.bg.loop();
+		Sound.bg.loop();
 	};
 	
 	public void eventTick() {
@@ -340,11 +343,19 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		Main.player.focusCameraOnPlayer();
 
 		Main.state = GameState.RUNNING;
-
+		Sound.bg.loop();
 	}
 	public static void gameOver(){
+		gameOver.setGameWon(false);
 		Main.state = GameState.GAME_OVER;
+		Sound.bg.stop();
 		Sound.playSound("fail");
+	}
+	public static void win(){
+		gameOver.setGameWon(true);
+		Main.state = GameState.GAME_OVER;
+		Sound.bg.stop();
+		Sound.playSound("success");
 	}
 	public static int generateRandomInt(int min, int max){
 		return (int) ((Math.random() * (max+1 - min)) + min);
