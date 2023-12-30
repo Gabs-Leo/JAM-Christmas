@@ -3,17 +3,13 @@ package com.gabs.rpggame;
 import java.io.File;
 import java.io.IOException;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 
 public class Sound {
 	
 	private Clip clip;
+	private String soundName;
 	//public static Sound bg = new Sound("sounds/Snowy.wav");
-	
 	public Sound(String path) {
 		try {
 			File file = new File(Thread.currentThread().getContextClassLoader().getResource(path).getFile());
@@ -30,11 +26,21 @@ public class Sound {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		this.soundName = path.replace("sounds/", "").replace(".wav", "");
 	}
-	
+	public static void playSound(String soundName){
+		new Sound("sounds/"+soundName+".wav").play();
+	}
 	public void play() {
 		new Thread() {
 			public void start() {
+				FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+				if(soundName.equals("fall"))
+					volume.setValue(-20f);
+				if(soundName.equals("jump"))
+					volume.setValue(-5f);
+				if(soundName.equals("fail"))
+					volume.setValue(-5f);
 				clip.start();
 			}
 		}.start();

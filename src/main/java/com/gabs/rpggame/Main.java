@@ -60,7 +60,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	public static Spritesheet spritesheet;
 	public static World world;
 	public static Random random;
-	public HUD ui;
+	public static HUD ui;
 	public GameOverScreen gameOver = new GameOverScreen();
 	public PauseScreen pauseScreen = new PauseScreen();
 	public Transition transition = new Transition();
@@ -117,6 +117,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 					enemies.get(i).eventTick();
 				for(int i = 0; i < damageShots.size(); i++)
 					damageShots.get(i).eventTick();
+				ui.eventTick();
 			}
 			break;
 		case PAUSED:
@@ -147,7 +148,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			} catch (Exception e){
 				System.out.println("err");
 			}
-
 		}
 
 		for(int i = 0; i < entities.size(); i++) 
@@ -161,11 +161,13 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		//dialogs.get(0).render(g);
 		switch(state) {
 			case RUNNING:
+				ui.render(g);
 				break;
 			case PAUSED:
 				pauseScreen.render(g);
 				break;
 			case GAME_OVER:
+				gameOver.setTimePlayed(ui.getTimePlayed());
 				gameOver.render(g);
 				break;
 			case MAIN_MENU:
@@ -282,14 +284,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			if(e.getKeyCode() == KeyEvent.VK_UP){
 				player.setJump(true);
 			}
-			/*
-			if(e.getKeyCode() == KeyEvent.VK_UP) {
-				player.setUp(true);
-			} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-				player.setDown(true);
-			}
-			*/
-
 		}
 
 		else if(state == GameState.GAME_OVER){
@@ -297,7 +291,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 				Main.state = GameState.RUNNING;
 				startGame();
 			}
-
 		}
 
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -336,8 +329,9 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	}
 	public static void startGame(){
 		Camera.setY(0);
-		entities = new ArrayList<Entity>();
-		enemies = new ArrayList<Enemy>();
+		ui.setTimePlayed(0);
+		entities = new ArrayList<>();
+		enemies = new ArrayList<>();
 		damageShots = new ArrayList<>();
 
 
@@ -347,6 +341,10 @@ public class Main extends Canvas implements Runnable, KeyListener {
 
 		Main.state = GameState.RUNNING;
 
+	}
+	public static void gameOver(){
+		Main.state = GameState.GAME_OVER;
+		Sound.playSound("fail");
 	}
 	public static int generateRandomInt(int min, int max){
 		return (int) ((Math.random() * (max+1 - min)) + min);

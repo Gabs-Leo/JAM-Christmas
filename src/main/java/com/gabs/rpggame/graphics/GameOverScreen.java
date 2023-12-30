@@ -11,6 +11,7 @@ public class GameOverScreen {
 	private int frame;
 	private int duration = 40;
 	private boolean showGameOverMessage;
+	private int timePlayed;
 	
 	public void render(Graphics g) {
 		if(Main.state == GameState.GAME_OVER) {
@@ -19,7 +20,11 @@ public class GameOverScreen {
 			
 			g.setColor(new Color(255, 255, 255));
 			g.setFont(new Font("Javanese Text", Font.PLAIN, 48));
-			g.drawString("Game Over", Main.GameProperties.ScreenWidth/2 - 120, Main.GameProperties.ScreenHeight/2 - 20);
+			g.drawString("Game Over", Main.GameProperties.ScreenWidth/2 - 120, Main.GameProperties.ScreenHeight/2 - 40);
+
+			g.setColor(new Color(255, 255, 255));
+			g.setFont(new Font("Javanese Text", Font.PLAIN, 24));
+			g.drawString("Time Played: "+this.getTimePlayed()+" seconds", Main.GameProperties.ScreenWidth/2 - 120,Main.GameProperties.ScreenHeight/2);
 
 			frame++;
 			if(frame >= duration) {
@@ -30,10 +35,17 @@ public class GameOverScreen {
 					showGameOverMessage = true;
 			}
 			if(showGameOverMessage) {
-				g.setColor(new Color(255, 255, 255));
-				g.setFont(new Font("Javanese Text", Font.PLAIN, 24));
-				g.drawString("> Press [ Z ] to Restart <", Main.GameProperties.ScreenWidth/2 - 140, Main.GameProperties.ScreenHeight/2 + 20);
+				g.drawString("> Press [ Z ] to Restart <", Main.GameProperties.ScreenWidth/2 - 125, Main.GameProperties.ScreenHeight/2 + 60);
 			}
+
 		}
+	}
+
+	public int getTimePlayed() {
+		return timePlayed;
+	}
+
+	public void setTimePlayed(int timePlayed) {
+		this.timePlayed = timePlayed;
 	}
 }

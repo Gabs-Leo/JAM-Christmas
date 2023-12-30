@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.gabs.rpggame.GameState;
 import com.gabs.rpggame.Main;
+import com.gabs.rpggame.Sound;
 import com.gabs.rpggame.entities.collectables.Collectable;
 import com.gabs.rpggame.graphics.Animation;
 import com.gabs.rpggame.world.Camera;
@@ -119,7 +120,7 @@ public class Player extends AliveEntity {
 		focusCameraOnPlayer();
 		
 		if(this.getY() >= Camera.getY()+Main.GameProperties.ScreenHeight)
-			Main.state = GameState.GAME_OVER;
+			Main.gameOver();
 		
 		super.eventTick();
 	}
@@ -180,6 +181,7 @@ public class Player extends AliveEntity {
 	public void updateJump(){
 		if(!World.placeFree(this.getX(), this.getY()+1)){
 			this.setJumping(true);
+			Sound.playSound("jump");
 		}else {
 			setJump(false);
 		}
@@ -313,20 +315,4 @@ public class Player extends AliveEntity {
 	public void setJump(boolean jump) {
 		this.jump = jump;
 	}
-	/*
-	public Animation getDownAnimation() {
-		return downAnimation;
-	}
-
-	public Animation getUpAnimation() {
-		return upAnimation;
-	}
-
-	public Animation getLeftAnimation() {
-		return leftAnimation;
-	}
-
-	public Animation getRightAnimation() {
-		return rightAnimation;
-	}*/
 }
