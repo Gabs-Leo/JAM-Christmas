@@ -9,38 +9,25 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import com.gabs.rpggame.world.Camera;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.gabs.rpggame.entities.DamageShot;
-import com.gabs.rpggame.entities.Enemy;
+import com.gabs.rpggame.world.Camera;
 import com.gabs.rpggame.entities.Entity;
 import com.gabs.rpggame.entities.Player;
-import com.gabs.rpggame.graphics.Dialog;
 import com.gabs.rpggame.graphics.GameOverScreen;
 import com.gabs.rpggame.graphics.HUD;
 import com.gabs.rpggame.graphics.MainMenu;
 import com.gabs.rpggame.graphics.PauseScreen;
 import com.gabs.rpggame.graphics.Spritesheet;
-import com.gabs.rpggame.graphics.Transition;
 import com.gabs.rpggame.world.Direction;
-import com.gabs.rpggame.world.EventTrigger;
 import com.gabs.rpggame.world.World;
 
 public class Main extends Canvas implements Runnable, KeyListener {
@@ -49,77 +36,62 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	 */
 	public static JFrame frame;
 	public static GameProperties GameProperties;
-	public static Assets assets;
 	private Thread thread;
 	private boolean running = true;
 	
 	public static Player player;
 	public static List<Entity> entities;
-	public static List<DamageShot> damageShots;
-	public static List<Enemy> enemies;
 	public static Spritesheet spritesheet;
 	public static World world;
-	public static Random random;
 	public static HUD ui;
 	public static GameOverScreen gameOver = new GameOverScreen();
 	public PauseScreen pauseScreen = new PauseScreen();
-	public Transition transition = new Transition();
 	public MainMenu mainMenu = new MainMenu();
-	private BufferedImage image;
+	private final BufferedImage image;
 	public static GameState state;
 	
 	public static void main(String[] args) {
 		try {
-			/*
+
 			File file = new File(
 					"game-properties.yml"
 					//Objects.requireNonNull(
-					//		Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
-					//).getFile()
+				//			Thread.currentThread().getContextClassLoader().getResource("game-properties.yml")
+				//	).getFile()
 			);
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);*/
-			
+			mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+
 			spritesheet = new Spritesheet("/sprites/christmas_spritesheet.png");
-			//GameProperties = mapper.readValue(file, GameProperties.class);
-			GameProperties = new GameProperties();
+			GameProperties = mapper.readValue(file, GameProperties.class);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
 		}
+
 		Main main = new Main();
 		main.start();
-	};
+	}
 	
 	public Main() {
-		random = new Random();
 		startFrame();
 		image = new BufferedImage(GameProperties.ScreenWidth, GameProperties.ScreenHeight, BufferedImage.TYPE_INT_RGB);
-		entities = new ArrayList<Entity>();
-		enemies = new ArrayList<Enemy>();
-		damageShots = new ArrayList<>();
-		
+		entities = new ArrayList<>();
+
 		ui = new HUD();
 		player = new Player();
 		addKeyListener(this);
-		
-		//world = new World("maps/christmas_map.png");
 		entities.add(player);
-		
 		state = GameState.MAIN_MENU;
-		
+
 		Sound.bg.loop();
-	};
+	}
 	
 	public void eventTick() {
 		switch(state) {
 		case RUNNING:{
 				for(int i = 0; i < entities.size(); i++)
 					entities.get(i).eventTick();
-				for(int i = 0; i < enemies.size(); i++)
-					enemies.get(i).eventTick();
-				for(int i = 0; i < damageShots.size(); i++)
-					damageShots.get(i).eventTick();
 				ui.eventTick();
 			}
 			break;
@@ -135,7 +107,6 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	}
 	
 	public void render() {
-		
 		var bs = this.getBufferStrategy();
 		if(bs == null) {
 			this.createBufferStrategy(3);
@@ -155,13 +126,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 
 		for(int i = 0; i < entities.size(); i++) 
 			entities.get(i).render(g);
-		for(int i = 0; i < enemies.size(); i++) 
-			enemies.get(i).render(g);
-		for(int i = 0; i < damageShots.size(); i++) 
-			damageShots.get(i).render(g);
-		//ui.render(g);
-		//transition.render(g);
-		//dialogs.get(0).render(g);
+
 		switch(state) {
 			case RUNNING:
 				ui.render(g);
@@ -182,7 +147,13 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		
 		g.dispose();
 		g = bs.getDrawGraphics();
-		g.drawImage(image, 0, 0, GameProperties.ScreenWidth*GameProperties.ScreenScale, GameProperties.ScreenHeight*GameProperties.ScreenScale, null);
+		g.drawImage(
+				image,
+				0, 0,
+				GameProperties.ScreenWidth*GameProperties.ScreenScale,
+				GameProperties.ScreenHeight*GameProperties.ScreenScale,
+				null
+		);
 		bs.show();
 	}
 	
@@ -205,18 +176,14 @@ public class Main extends Canvas implements Runnable, KeyListener {
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 144;
 		double interval = 1000000000 / amountOfTicks;
-		//double nanoSeconds = 1000000000 / amountOfTicks;
-		//double delta = 0;
 		double lag = 0;
 
-		@SuppressWarnings("unused")
 		int frames = 0;
-
 		double timer = System.currentTimeMillis();
 		requestFocus();
 
 		while(running) {
-			Long currentTime = System.nanoTime();
+			long currentTime = System.nanoTime();
 			double delta = currentTime - lastTime;
 			lag += delta;
 
@@ -236,10 +203,13 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			lastTime = currentTime;
 		}
 		stop();
-	};
+	}
 
 	public void startFrame() {		
-		this.setPreferredSize(new Dimension(GameProperties.ScreenWidth*GameProperties.ScreenScale, GameProperties.ScreenHeight*GameProperties.ScreenScale));
+		this.setPreferredSize(new Dimension(
+				GameProperties.ScreenWidth*GameProperties.ScreenScale,
+				GameProperties.ScreenHeight*GameProperties.ScreenScale)
+		);
 		frame = new JFrame("Christmas Platform");
 		frame.add(this);
 		frame.setResizable(false);
@@ -250,9 +220,7 @@ public class Main extends Canvas implements Runnable, KeyListener {
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
-
-	}
+	public void keyTyped(KeyEvent e) {}
 	@Override
 	public void keyPressed(KeyEvent e) {
 		//Pause Menu
@@ -277,18 +245,16 @@ public class Main extends Canvas implements Runnable, KeyListener {
 
 		//Player Movement
 		else if(state == GameState.RUNNING) {
-			if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			if (e.getKeyCode() == KeyEvent.VK_RIGHT)
 				player.setRight(true);
-				//player.setJump(true);
-			} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			else if (e.getKeyCode() == KeyEvent.VK_LEFT)
 				player.setLeft(true);
-				//player.setJump(true);
-			}
-			if(e.getKeyCode() == KeyEvent.VK_UP){
+
+			if(e.getKeyCode() == KeyEvent.VK_UP)
 				player.setJump(true);
-			}
 		}
 
+		//Game Over
 		else if(state == GameState.GAME_OVER){
 			if(e.getKeyCode() == KeyEvent.VK_Z){
 				Main.state = GameState.RUNNING;
@@ -296,47 +262,26 @@ public class Main extends Canvas implements Runnable, KeyListener {
 			}
 		}
 
+		//Pause Game
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			if(state == GameState.PAUSED) {
-				transition.endTransition();
-				//Sound.bg.play();
 				state = GameState.RUNNING;
 			} else if (state == GameState.RUNNING){
-				//Sound.bg.stop();
-				transition.startTransition();
 				state = GameState.PAUSED;
 			}
 		}
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
-
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT)
 			player.setRight(false);
-			//player.getRightAnimation().setIndex(player.getRightAnimation().getStartIndex());
-
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		else if (e.getKeyCode() == KeyEvent.VK_LEFT)
 			player.setLeft(false);
-			//player.getLeftAnimation().setIndex(player.getLeftAnimation().getStartIndex());
-		}
-		/*
-		if(e.getKeyCode() == KeyEvent.VK_UP) {
-			player.setUp(false);
-			//player.getUpAnimation().setIndex(player.getUpAnimation().getStartIndex());
-
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			player.setDown(false);
-			//player.getDownAnimation().setIndex(player.getDownAnimation().getStartIndex());
-		}*/
-
 	}
 	public static void startGame(){
 		Camera.setY(0);
 		ui.setTimePlayed(0);
 		entities = new ArrayList<>();
-		enemies = new ArrayList<>();
-		damageShots = new ArrayList<>();
-
 
 		Main.world = new World("/maps/christmas_map.png");
 		entities.add(player);

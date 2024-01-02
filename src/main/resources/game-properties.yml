@@ -1,9 +1,7 @@
 #Display Settings
 TileSize: 75
 Clamp: true
-#ScreenWidth: 600
-#ScreenHeight: 900
-#ScreenScale: 1
+
 ScreenWidth: 600
 ScreenHeight: 900
 ScreenScale: 1

@@ -7,14 +7,19 @@ import java.awt.Graphics;
 import com.gabs.rpggame.GameState;
 import com.gabs.rpggame.Main;
 
-public class GameOverScreen {
+public class GameOverScreen implements UI {
 	private int frame;
 	private int duration = 40;
 	private boolean showGameOverMessage;
 	private int timePlayed;
 
 	private boolean isGameWon = false;
-	
+
+	@Override
+	public void trigger() {
+
+	}
+
 	public void render(Graphics g) {
 		if(Main.state == GameState.GAME_OVER) {
 			g.setColor(new Color(0, 0, 0, .6f));

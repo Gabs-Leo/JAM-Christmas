@@ -2,6 +2,7 @@ package com.gabs.rpggame;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -13,20 +14,16 @@ public class Sound {
 	public static Sound bg = new Sound("sounds/bg.wav");
 	public Sound(String path) {
 		try {
-			//File file = new File(Thread.currentThread().getContextClassLoader().getResource(path).getFile());
-			File file = new File(path);
+			File file = new File(
+					Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path)).getFile()
+			);
+
+			//File file = new File(path);
+
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
 			this.clip = AudioSystem.getClip();
 			this.clip.open(audioStream);
-		} catch (LineUnavailableException e) {
-			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(null, e.getMessage());
-			;
-		} catch (UnsupportedAudioFileException e) {
-			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(null, e.getMessage());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 		this.soundId = path.replace("sounds/", "").replace(".wav", "");
